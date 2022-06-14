@@ -4,7 +4,9 @@ const { num, str, bool } = envalid;
 
 export default envalid.cleanEnv(process.env, {
 
-  ROOT_URL: str(),
+  ROOT_URL: str({
+    default: "https://localhost:3000"
+  }),
   TYPESENSE_COLLECTION: str({
     desc: "The name of the collection to store the data in."
   }),
