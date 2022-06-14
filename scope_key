@@ -1,0 +1,10 @@
+#!/bin/bash
+
+KEY_WITH_SEARCH_PERMISSIONS=""
+EMBEDDED_SEARCH_PARAMETERS_JSON='{"use_cache":true, "cache_ttl": 120}'
+
+digest=$(echo -n $EMBEDDED_SEARCH_PARAMETERS_JSON | openssl dgst -sha256 -hmac $KEY_WITH_SEARCH_PERMISSIONS -binary | base64 -w0)
+
+scoped_api_key=$(echo -n "${digest}${KEY_WITH_SEARCH_PERMISSIONS:0:4}${EMBEDDED_SEARCH_PARAMETERS_JSON}" | base64 -w0)
+
+echo $scoped_api_key

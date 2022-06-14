@@ -5,7 +5,7 @@ import config from "../config.js";
 
 import hash from "object-hash";
 
-const {TYPESENSE_HOST,TYPESENSE_COLLECTION,TYPESENSE_SEARCH_KEY,TYPESENSE_RETRIES,TYPESENSE_RETRY_DELAY,ROOT_URL} = config;  
+const {TYPESENSE_HOST,TYPESENSE_COLLECTION,TYPESENSE_TIMEOUT,TYPESENSE_SEARCH_KEY,TYPESENSE_RETRIES,TYPESENSE_RETRY_DELAY,ROOT_URL} = config;  
 
 const typesenseclient = new typesense.Client({
   nodes: [
@@ -81,12 +81,6 @@ export default async function typesenseSearch(context, connectionArgs, currentAp
     connectionArgs.typesenseSearchParameters.per_page=perPage;
     connectionArgs.typesenseSearchParameters.page=currentPage;
 
-    if(connectionArgs.typesenseSearchParameters.use_cache !== false){
-      connectionArgs.typesenseSearchParameters.use_cache = true;
-    }
-    connectionArgs.typesenseSearchParameters.cache_ttl = 120;
-    connectionArgs.typesenseSearchParameters.search_cutoff_ms = 10;
-    
     const searchData = await searchtypeSense(connectionArgs.typesenseSearchParameters);
    
     
