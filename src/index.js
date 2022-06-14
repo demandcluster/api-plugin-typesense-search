@@ -1,4 +1,4 @@
-import debug from "./debug.js";
+
 import queries from "./queries/index.js";
 import resolvers from "./resolvers/index.js";
 import schemas from "./schemas/index.js";
