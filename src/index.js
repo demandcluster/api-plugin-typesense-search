@@ -5,6 +5,7 @@ import schemas from "./schemas/index.js";
 import pkg from "../package.json";
 
 
+
 /**
  * @summary Import and call this function to add this plugin to your API.
  * @param {ReactionAPI} app The ReactionAPI instance
@@ -12,12 +13,12 @@ import pkg from "../package.json";
  */
 export default async function register(app) {
   /**
-   * Simple Inventory plugin
-   * Isolates the get/set of inventory data to this plugin.
+   * @summary Add GraphQL schemas and resolvers for this plugin
+   * @param {Object} context
    */
   await app.registerPlugin({
-    label: "Plugin Typesense Search",
-    name: "plugin-typesense-search",
+    label: "Typesense Search",
+    name: "typesense-search",
     version: pkg.version,
     graphQL: {
       resolvers,

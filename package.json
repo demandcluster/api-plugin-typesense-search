@@ -26,9 +26,7 @@
   "sideEffects": false,
   "dependencies": {
     "@reactioncommerce/api-utils": "^1.16.9",
-    "mongodb": "^4.5.0",
     "object-hash": "^3.0.0",
-    "redis": "^4.1.0",
     "typesense": "^1.2.2"
   },
   "devDependencies": {
@@ -50,7 +48,8 @@
     "eslint-plugin-react": "^7.14.3",
     "eslint-plugin-react-hooks": "^2.0.1",
     "husky": "^4.2.3",
-    "semantic-release": "^19.0.3"
+    "jest": "^28.1.1",
+    "semantic-release": ">=19.0.3"
   },
   "scripts": {
     "lint": "npm run lint:eslint",

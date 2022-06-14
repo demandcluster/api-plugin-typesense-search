@@ -1,32 +1,25 @@
 import typesense from "typesense";
 import xformArrayToConnection from "@reactioncommerce/api-utils/graphql/xformArrayToConnection.js";
 import getPaginatedResponseFromAggregate from "@reactioncommerce/api-utils/graphql/getPaginatedResponseFromAggregate.js";
-// import { createClient } from 'redis';
+import config from "../config.js";
+
 import hash from "object-hash";
- 
 
-// const env = cleanEnv(process.env, {
-//   REDISHOST:        str({ default: 'redis' }),
-//   REDISPWD:           str({ default: 'redis' }),
-// })
-
-// const RedisClient = redis.createClient(6379, env.REDISHOST);
-// RedisClient.auth(env.REDISPWD);
-
+const {TYPESENSE_HOST,TYPESENSE_COLLECTION,TYPESENSE_SEARCH_KEY,TYPESENSE_RETRIES,TYPESENSE_RETRY_DELAY,ROOT_URL} = config;  
 
 const typesenseclient = new typesense.Client({
   nodes: [
     {
-      host: 'typesense.demandcluster.com',
+      host: TYPESENSE_HOST,
       port: '443',
       protocol: 'https',
     },
   ],
-  typesenseCollectionName: process.env.typesenseApiSearchCollection,
-  apiKey: process.env.typesenseApiSearchKey,
-  connectionTimeoutSeconds: 20,
-  numRetries: 4,
-  retryIntervalSeconds: 2,
+  typesenseCollectionName: TYPESENSE_COLLECTION,
+  apiKey: TYPESENSE_SEARCH_KEY,
+  connectionTimeoutSeconds: TYPESENSE_TIMEOUT,
+  numRetries: TYPESENSE_RETRIES,
+  retryIntervalSeconds: TYPESENSE_RETRY_DELAY
 });
 
 const decodeOpaqueId = (opaqueId) => {
@@ -52,20 +45,12 @@ const fixComparePrice = (compEUR) => {
 };
 
 const searchtypeSense = async (params) => {
-  return await typesenseclient.collections(process.env.typesenseApiSearchCollection).documents().search(params);
+  return typesenseclient.collections(TYPESENSE_COLLECTION).documents().search(params);
 };
 export default async function typesenseSearch(context, connectionArgs, currentApiAccess) {
   
   let startTime = process.hrtime();
-  
-
-  // const redisHash = hash(connectionArgs.typesenseSearchParameters)//up before 0 page
-  // RedisClient.get(
-  //   `${process.env.platform}:${redisHash}`,
-  //   async (err, searchResponsea) => {
-  //    if (searchResponsea) {
-  //      return searchResponsea;
-  //   }
+ 
     connectionArgs.typesenseSearchParameters.q = connectionArgs.typesenseSearchParameters.q.join(',');
     connectionArgs.typesenseSearchParameters.query_by = connectionArgs.typesenseSearchParameters.query_by.join(',');
     try {
@@ -101,36 +86,12 @@ export default async function typesenseSearch(context, connectionArgs, currentAp
     }
     connectionArgs.typesenseSearchParameters.cache_ttl = 120;
     connectionArgs.typesenseSearchParameters.search_cutoff_ms = 10;
-    // const facet_by  = connectionArgs.typesenseSearchParameters.facet_by.split(',');
-    // const allPromises = [];
-    // facet_by.forEach(facet => {
-    //   connectionArgs.typesenseSearchParameters.facet_by = facet;
-    //   allPromises.push(searchtypeSense(JSON.parse(JSON.stringify(connectionArgs.typesenseSearchParameters))));
-    //   connectionArgs.typesenseSearchParameters.per_page = 0;
-    // });
-
-    // let searchData = [];
-    // const result = await Promise.all(allPromises);
-    // result.forEach(data => {
-    //   if(data.hits.length === 0 ){
-    //     searchData.facet_counts.push(...data.facet_counts);
-    //   }else{
-    //     searchData = data;
-    //   }
-    // });
-    const searchData = await searchtypeSense(connectionArgs.typesenseSearchParameters);
-    console.log('searchData', searchData);
-    // const variantIds = searchData.hits.map(hit => (hit.document.variantId )).filter((value, index, self) => self.indexOf(value) === index);
-    console.log(`process took 1 : ${process.hrtime(startTime)}`);
-    startTime = process.hrtime();
     
-    // const catalogProducts = searchData.hits.map(hit => {
-    //   return JSON.parse(hit.document.fullDocument);
-    // });
-
-    // const catalogProducts2 = await context.collections.Catalog.find({_id: {$in:variantIds}}, { _id:1 }).toArray(); 
+    const searchData = await searchtypeSense(connectionArgs.typesenseSearchParameters);
+   
+    
     const searchDataWithCatalogProducts = searchData.hits.map(hit => {
-      // const catalogProduct = catalogProducts.find(catalogProduct => catalogProduct._id === hit.document.variantId);
+    
       const catalogProduct = JSON.parse(hit.document.fullDocument);;
       catalogProduct.product.pricing.EUR.compareAtPrice = fixComparePrice(catalogProduct.product.pricing.EUR);
       
@@ -145,23 +106,18 @@ export default async function typesenseSearch(context, connectionArgs, currentAp
         });
         return va;
       });
-      catalogProduct.product.primaryImage.URLs.large = `${process.env.ROOT_URL}${catalogProduct.product.primaryImage.URLs.large}`;
-      catalogProduct.product.primaryImage.URLs.medium = `${process.env.ROOT_URL}${catalogProduct.product.primaryImage.URLs.medium}`;
-      catalogProduct.product.primaryImage.URLs.small = `${process.env.ROOT_URL}${catalogProduct.product.primaryImage.URLs.small}`;
-      catalogProduct.product.primaryImage.URLs.thumbnail = `${process.env.ROOT_URL}${catalogProduct.product.primaryImage.URLs.thumbnail}`;
-      
-      // catalogProduct._id = '23y8dh28923f23';
-      // console.log('catalogProduct',catalogProduct);
+      catalogProduct.product.primaryImage.URLs.large = `${ROOT_URL}${catalogProduct.product.primaryImage.URLs.large}`;
+      catalogProduct.product.primaryImage.URLs.medium = `${ROOT_URL}${catalogProduct.product.primaryImage.URLs.medium}`;
+      catalogProduct.product.primaryImage.URLs.small = `${ROOT_URL}${catalogProduct.product.primaryImage.URLs.small}`;
+      catalogProduct.product.primaryImage.URLs.thumbnail = `${ROOT_URL}${catalogProduct.product.primaryImage.URLs.thumbnail}`;
+    
       return {highlights: {...hit.highlights}, ...catalogProduct};
     });
 
-    console.log(`process took 2 : ${process.hrtime(startTime)}`);
-    startTime = process.hrtime();
-    // console.log('searchDataWithCatalogProducts',searchDataWithCatalogProducts);
-    
-    // console.log(searchDataWithCatalogProducts[14].product.variants[0].pricing[0]);
+   
+  
     const searchResponse = await xformArrayToConnection({}, searchDataWithCatalogProducts);
-    // console.log('searchResponse',searchResponse);
+   
     const hasPreviousPage=searchData.page > 1;
     const hasNextPage=searchData.page < searchData.found/perPage;
   
@@ -172,18 +128,9 @@ export default async function typesenseSearch(context, connectionArgs, currentAp
     searchResponse.searchedItems=searchData.out_of;
     searchResponse.page=searchData.page;
     searchResponse.facet_counts=searchData?.facet_counts||[];
-    // console.log(searchResponse.edges[0].node.product.pricing[0]);
 
-    console.log(`process took 3 : ${process.hrtime(startTime)}`);
-    startTime = process.hrtime();
-
-
-
-
-      
-
-    // RedisClient.set(`${process.env.platform}:${redisHash}`, searchResponse, 600);
+    
     return searchResponse;
-  // });
+  
   
 }
