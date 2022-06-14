@@ -1,0 +1,491 @@
+"Input for the search query."
+input typesenseSearchParameters {
+  """
+  The query text to search for in the collection.
+  Use * as the search string to return all documents. This is typically useful when used in conjunction with filter_by.
+  For example, to return all documents that match a filter, use:q=*&filter_by=num_employees:10.
+  To exclude words in your query explicitly, prefix the word with the - operator, e.g. q: 'electric car -tesla'.
+  """
+  q: [String]!
+
+  """"
+  One or more string / string[] fields that should be queried against. Separate multiple fields with a comma: company_name, country
+  The order of the fields is important: a record that matches on a field earlier in the list is considered more relevant than a record matched on a field later in the list. So, in the example above, documents that match on the company_name field are ranked above documents matched on the country field.
+  """
+  query_by: [String]!
+
+  """"
+  The relative weight to give each query_by field when ranking results. This can be used to boost fields in priority, when looking for matches.
+  Separate each weight with a comma, in the same order as the query_by fields. For eg: query_by_weights: 1,1,2 with query_by: field_a,field_b,field_c will give equal weightage to field_a and field_b, and will give twice the weightage to field_c comparatively.
+  """
+  query_by_weights: String
+
+  """
+  Boolean field to indicate that the last word in the query should be treated as a prefix, and not as a whole word. This is necessary for building autocomplete and instant search interfaces.
+  Default: true
+  """
+  prefix: String
+
+  """
+  Filter conditions for refining your search results.
+
+  A field can be matched against one or more values.
+
+  country: USA
+
+  country: [USA, UK] - returns documents that have country of USA OR UK.
+
+  To match a string field exactly, you have to mark the field as a facet and use the := operator.
+
+  For eg: category:=Shoe will match documents from the category shoes and not from a category like shoe rack. You can also filter using multiple values: category:= [Shoe, Sneaker].
+
+  Get numeric values between a min and max value, using the range operator [min..max]
+
+  For eg: num_employees:[10..100]
+
+  Separate multiple conditions with the && operator.
+
+  For eg: num_employees:>100 && country: [USA, UK]
+
+  More examples:
+
+  num_employees:10
+  num_employees:<=10
+  """
+  filter_by: String
+
+  """
+  A list of numerical fields and their corresponding sort orders that will be used for ordering your results. Separate multiple fields with a comma. Up to 3 sort fields can be specified.
+
+  E.g. num_employees:desc,year_started:asc
+
+  The text similarity score is exposed as a special _text_match field that you can use in the list of sorting fields.
+
+  If one or two sorting fields are specified, _text_match is used for tie breaking, as the last sorting field.
+
+  Default:
+
+  If no sort_by parameter is specified, results are sorted by: _text_match:desc,default_sorting_field:desc.
+  """
+  sort_by: String
+
+  """
+	Set this parameter to true if you wish to split the search query into space separated words yourself. When set to true, we will only split the search query by space, instead of using the locale-aware, built-in tokenizer.
+  Default: false
+  """
+  pre_segmented_query: Boolean
+
+  """
+  facet_by	no	A list of fields that will be used for faceting your results on. Separate multiple fields with a comma.
+  """
+  facet_by: String
+
+  """
+  max_facet_values	no	Maximum number of facet values to be returned.
+  Default: 10
+  """
+  max_facet_values: Int
+
+  """
+  Facet values that are returned can now be filtered via this parameter. The matching facet text is also highlighted. For example, when faceting by category, you can set facet_query=category:shoe to return only facet values that contain the prefix shoe.
+  """
+  facet_query: String
+
+  """
+  page	no	Results from this specific page number would be fetched.
+  Page numbers start at 1 for the first page.
+  Default: 1
+  """
+  page: Int
+
+  """
+  Number of results to fetch per page.
+  When group_by is used, per_page refers to the number of groups to fetch per page, in order to properly preserve pagination.
+  Default: 10
+  NOTE: Only upto 250 hits (or groups of hits when using group_by) can be fetched per page.
+  """
+  per_page: Int
+
+  """
+  You can aggregate search results into groups or buckets by specify one or more group_by fields. Separate multiple fields with a comma.
+  NOTE: To group on a particular field, it must be a faceted field.
+  E.g. group_by=country,company_name
+  """
+  group_by: String
+
+  """
+  Maximum number of hits to be returned for every group. If the group_limit is set as K then only the top K hits in each group are returned in the response.
+  Default: 3
+  """
+  group_limit: Int
+
+  """
+  Comma-separated list of fields from the document to include in the search result.
+  """
+  include_fields: String
+
+  """
+  Comma-separated list of fields from the document to exclude in the search result.
+  """
+  exclude_fields: String
+
+  """
+  Comma separated list of fields that should be highlighted with snippetting. You can use this parameter to highlight fields that you don't query for, as well.
+  Default: all queried fields will be highlighted.
+  """
+  highlight_fields: String
+
+  """
+  Comma separated list of fields which should be highlighted fully without snippeting.
+  Default: all fields will be snippeted.
+  """
+  highlight_full_fields: String
+
+  """
+  The number of tokens that should surround the highlighted text on each side. This controls the length of the snippet.
+  Default: 4
+  """
+  highlight_affix_num_tokens: Int
+
+  """
+  The start tag used for the highlighted snippets.
+  Default: <mark>
+  """
+  highlight_start_tag: String
+
+  """
+  The end tag used for the highlighted snippets.
+  Default: </mark>
+  """
+  highlight_end_tag: String
+
+  """
+  Field values under this length will be fully highlighted, instead of showing a snippet of relevant portion.
+  Default: 30
+  """
+  snippet_threshold: Int
+
+  """
+  limit_hits	no	Maximum number of hits that can be fetched from the collection. Eg: 200
+  page * per_page should be less than this number for the search request to return results.
+  Default: no limit
+
+  You'd typically want to generate a scoped API key with this parameter embedded and use that API key to perform the search, so it's automatically applied and can't be changed at search time.
+  """
+  limit_hits: Int
+
+  """
+  Typesense will attempt to return results early if the cutoff time has elapsed. This is not a strict guarantee and facet computation is not bound by this parameter.
+  Default: no search cutoff happens.
+  """
+  search_cutoff_ms: String
+
+  """
+  Typesense use_cache enables you to control whether or not to use the cache for the search request.
+  Default: false
+  """
+  use_cache: Boolean
+
+  """
+	Setting this to true will make Typesense consider all variations of prefixes and typo corrections of the words in the query exhaustively, without stopping early when enough results are found (drop_tokens_threshold and typo_tokens_threshold configurations are ignored).
+  Default: false
+  """
+  exhaustive_search: Boolean
+
+  """
+  offset	no	Offset the search results by this number of hits.
+  Default: 0
+  """
+  offset: Int
+
+  """
+  Per page
+  """
+  first: Int
+
+}
+
+
+"Highlight info for a specific product."
+type typesenseHighlights {
+    field: String,
+    matched_tokens: [String],
+    snippet: String
+}
+
+
+
+"The product price or price range for a specific currency"
+type CurrencyExchangetypesensePricingInfo {
+  """
+  A comparison price value, usually MSRP. If `price` is null, this will also be null. That is,
+  only purchasable variants will have a `compareAtPrice`.
+  """
+  compareAtPrice: Money
+  "The code for the currency these pricing details applies to"
+  currency: Currency!
+  """
+  UI should display this price. If a product has multiple potential prices depending on selected
+  variants and options, then this is a price range string such as "$3.95 - $6.99". It includes the currency
+  symbols.
+  """
+  displayPrice: String!
+  "The price of the most expensive possible variant+option combination"
+  maxPrice: Float!
+  "The price of the least expensive possible variant+option combination"
+  minPrice: Float!
+  """
+  For variants with no options and for options, this will always be set to a price. For variants
+  with options and products, this will be `null`. There must be a price for a variant to be
+  added to a cart or purchased. Otherwise you would instead add one of its child options to a cart.
+  """
+  price: Float
+}
+"The product price or price range for a specific currency"
+type typesensePricingInfo {
+  """
+  A comparison price value, usually MSRP. If `price` is null, this will also be null. That is,
+  only purchasable variants will have a `compareAtPrice`.
+  """
+  compareAtPrice: Money
+
+  "The code for the currency these pricing details applies to"
+  currency: Currency!
+
+  "Pricing converted to specified currency"
+  currencyExchangePricing(
+    "Code for the currency in which you want to see pricing info"
+    currencyCode: String!
+  ): CurrencyExchangetypesensePricingInfo
+
+  """
+  UI should display this price. If a product has multiple potential prices depending on selected
+  variants and options, then this is a price range string such as "$3.95 - $6.99". It includes the currency
+  symbols.
+  """
+  displayPrice: String!
+  "The price of the most expensive possible variant+option combination"
+  maxPrice: Float!
+  "The price of the least expensive possible variant+option combination"
+  minPrice: Float!
+  """
+  For variants with no options and for options, this will always be set to a price. For variants
+  with options and products, this will be `null`. There must be a price for a variant to be
+  added to a cart or purchased. Otherwise you would instead add one of its child options to a cart.
+  """
+  price: Float
+}
+
+type typeSenseProductVariant {
+  "The CatalogProductVariant ID. Do not assume that this is the same as the related variant ID. See `variantId` for that."
+  _id: ID
+  """
+  The attribute label describes the category of variant, for example, `Color` or `Size`.
+  In most cases this will be the same for all variants at the same level.
+  """
+  attributeLabel: String!
+  "The product variant barcode value, if it has one"
+  barcode: String
+  canBackorder: Boolean
+  "The date and time at which this CatalogProductVariant was created, which is when the related product was first published"
+  createdAt: DateTime
+  "The height of the product variant, if it has physical dimensions"
+  height: Float
+  "The position of this variant among other variants at the same level of the product-variant-option hierarchy"
+  index: Int!
+  inventoryAvailableToSell: Boolean
+  inventoryInStock: Int
+  isBackorder: Boolean
+  isLowQuantity: Boolean
+  isSoldOut: Boolean
+  "The length of the product, if it has physical dimensions"
+  length: Float
+  "All media for this variant / option"
+  media: [ImageInfo]
+  "Arbitrary additional metadata about this product"
+  metafields: [Metafield]
+  "The minimum quantity that must be added to a cart"
+  minOrderQuantity: Int
+  "A short title to use for product detail select lists"
+  optionTitle: String
+  "Child variants, if any"
+  options: [typeSenseProductVariant]
+  "The country of origin"
+  originCountry: String
+  "Price and related information, per currency"
+  pricing: [typesensePricingInfo]
+  "The primary image of this variant / option"
+  primaryImage: ImageInfo
+  "The shop to which this product variant belongs"
+  shop: Shop!
+  "A stock keeping unit (SKU) identifier for this product"
+  sku: String
+  """
+  The full variant title for use on cart, checkout, and order summaries and on invoices.
+  This fully describes the configured variant. For example, if this is an option with
+  `optionTitle` `Large`, its parent variant has `optionTitle` `Red`, and the product
+  `title` is `Fancy T-Shirt`, then this `title` will be something like `Fancy T-Shirt - Red - Large`.
+  """
+  title: String
+  "The date and time at which this CatalogProduct was last updated, which is when the related product was most recently published"
+  updatedAt: DateTime
+  "The related Variant ID"
+  variantId: ID!
+  "The weight of the product on Earth, if it has physical dimensions"
+  weight: Float
+  "The width of the product, if it has physical dimensions"
+  width: Float
+}
+
+type typeSenseProduct {
+  "The CatalogProduct ID. Do not assume that this is the same as the related product ID. See `productId` for that."
+  _id: ID
+  "The product barcode value, if it has one"
+  barcode: String
+  "The date and time at which this CatalogProduct was created, which is when the related product was first published"
+  createdAt: DateTime!
+  "The full product description, which may have newline characters in it"
+  description: String
+  "The height of the product, if it has physical dimensions"
+  height: Float
+  isBackorder: Boolean,
+  "True if this product has been deleted. Typically, deleted products are not returned in queries."
+  isDeleted: Boolean!
+  "True if this product should be shown to shoppers. Typically, non-visible products are not returned in queries."
+  isLowQuantity: Boolean,
+  isSoldOut: Boolean
+  isVisible: Boolean!
+  "The length of the product, if it has physical dimensions"
+  length: Float
+  "All media for this product and its variants"
+  media: [ImageInfo]
+  "The product description to use for page `description` meta element in HTML"
+  metaDescription: String
+  "Arbitrary additional metadata about this product"
+  metafields: [Metafield]
+  "The minimum quantity that must be added to a cart"
+  minOrderQuantity: Int
+  "The country of origin"
+  originCountry: String
+  "Subtitle"
+  pageTitle: String
+  "Dimensions and other information about the containers in which this product will be shipped"
+  parcel: ShippingParcel
+  "Price and related information, per currency"
+  pricing: [typesensePricingInfo]
+  "The primary image"
+  primaryImage: ImageInfo
+  "The related Product ID"
+  productId: ID!
+  "An arbitrary product type value, such as from an external system"
+  productType: String
+  "The shop to which this product belongs"
+  shop: Shop
+  "A stock keeping unit (SKU) identifier for this product"
+  sku: String
+  "A URL-safe and human-readable string that uniquely identifies this product"
+  slug: String
+  "Holds metadata specific to a specific social network service"
+  socialMetadata: [SocialMetadata]
+  "When a shopper purchases this product, what types of fulfillment can they choose from?"
+  supportedFulfillmentTypes: [FulfillmentType]!
+  "Product title"
+  title: String
+  "The date and time at which this CatalogProduct was last updated, which is when the related product was most recently published"
+  updatedAt: DateTime!
+  "A flat list of all variants for this product"
+  variants: [typeSenseProductVariant]
+  "The product vendor or manufacturer, for display"
+  vendor: String
+  "The weight of the product on Earth, if it has physical dimensions"
+  weight: Float
+  "The width of the product, if it has physical dimensions"
+  width: Float
+}
+
+type SearchResultItem implements CatalogItem & Node {
+  _id: ID!
+  highlights: typesenseHighlights,
+  shop: Shop!
+  product: typeSenseProduct
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  searchedItems: String
+}
+
+"A connection edge in which each node is a `CatalogItem` object"
+type SearchResultEdge {
+  "The cursor that represents this node in the paginated results"
+  cursor: ConnectionCursor!
+  "The catalog item"
+  node: SearchResultItem
+}
+
+type typesensetotalValues{
+  total_values: Int
+}
+type typesenseCountsFacet{
+  count: Int
+  highlighted: String
+  value: String
+}
+type typesenseSearchFacet{
+  counts: [typesenseCountsFacet]
+  field_name: String
+  stats: typesensetotalValues
+}
+
+type typesenseSearchConnection {
+  "A connection edge in which each node is a CatalogItem object"
+  edges: [SearchResultEdge]
+  "The facet_counts of the search results."
+  facet_counts: [typesenseSearchFacet]
+  "The hits of the search results."
+  nodes: [SearchResultItem]
+  "The pages of the search results."
+  page: Int!
+  "Information to help a client request the next or previous page"
+  pageInfo: PageInfo!
+  "The duration of the search time in milliseconds."
+  search_time_ms: Int
+  "The total number of nodes that match your query"
+  totalCount: Int!
+  "The total number of items searched"
+  searchedItems: Int
+}
+
+
+
+"Typesense info for a specific product."
+type typesenseItem {
+  "The title of the search object."
+  title: String!
+  "The price of the search object."
+  price: Float
+  "The slug of the search object."
+  slug: String!
+  "The brand of the search object."
+  brand: String
+  "The size of the search object."
+  size: String
+  "The tags of the search object."
+  tags: [String]
+  "The shopId of the search object."
+  shopId: String!
+  "The popularity_score of the search object."
+  popularity_score: String
+  "The created of the search object."
+  created: Int
+}
+
+
+extend type Query {
+  """
+  Search the typesense database check for full options
+  https://typesense.org/docs/0.22.2/api/documents.html#search-parameters
+  """
+  typesenseSearch(
+    """The product configuration for which you want inventory info"""
+    typesenseSearchParameters: typesenseSearchParameters!
+  ): typesenseSearchConnection
+}

@@ -1,0 +1,36 @@
+{
+    "branches": [
+        "+([0-9])?(.{+([0-9]),x}).x","trunk", "latest", "next", "next-major", {name: 'dev', prerelease: true},{name: 'rc',prerelease: true}
+      ],
+    "repositoryUrl": "https://github.com/demandcluster/api-plugin-typesense-search.git",
+    "publishConfig": {
+    "registry": "https://npm.demandcluster.com"
+     },
+    "debug": true,
+    "dryRun": false,
+    "ci": false,
+    "plugins": [
+      "@semantic-release/commit-analyzer",
+      "@semantic-release/release-notes-generator",
+      ["@semantic-release/npm",
+                {
+                    "npmPublish": true
+                }
+
+      ],
+      "@semantic-release/github",
+      [
+        "@semantic-release/changelog",
+        {
+          "changelogFile": "CHANGELOG.md"
+        }
+      ],
+      [
+        "@semantic-release/git",
+        {
+          "assets": ["package.json", "package-lock.json", "CHANGELOG.md"],
+          "message": "chore(release): ${nextRelease.version}\n\n${nextRelease.notes}"
+        }
+      ]
+    ]
+  }

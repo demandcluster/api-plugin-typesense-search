@@ -1,0 +1,83 @@
+{
+  "name": "@demandcluster/api-plugin-typesense-search",
+  "description": "Typesense search",
+  "version": "0.0.0-development",
+  "main": "index.js",
+  "type": "module",
+  "engines": {
+    "node": ">=12.14.1"
+  },
+  "homepage": "https://github.com/demandcluster/api-plugin-typesense-search",
+  "url": "https://github.com/demandcluster/api-plugin-typesense-search",
+  "email": "engineering@demandcluster.com",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/demandcluster/api-plugin-typesense-search.git"
+  },
+  "author": {
+    "name": "Demandcluster",
+    "email": "engineering@demandcluster.com",
+    "url": "https://demandcluster.com"
+  },
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/demandcluster/api-plugin-typesense-search/issues"
+  },
+  "sideEffects": false,
+  "dependencies": {
+    "@reactioncommerce/api-utils": "^1.16.9",
+    "mongodb": "^4.5.0",
+    "object-hash": "^3.0.0",
+    "redis": "^4.1.0",
+    "typesense": "^1.2.2"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.7.7",
+    "@babel/preset-env": "^7.7.7",
+    "@commitlint/cli": "^17.0.2",
+    "@commitlint/config-conventional": "^17.0.2",
+    "babel-eslint": "^10.0.3",
+    "babel-jest": "~25.1.0",
+    "babel-plugin-rewire-exports": "^2.0.0",
+    "babel-plugin-transform-es2015-modules-commonjs": "^6.26.2",
+    "babel-plugin-transform-import-meta": "~1.0.0",
+    "eslint": "^6.4.0",
+    "eslint-plugin-import": "^2.18.2",
+    "eslint-plugin-jest": "^23.7.0",
+    "eslint-plugin-jsx-a11y": "^6.2.3",
+    "eslint-plugin-node": "^10.0.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-react": "^7.14.3",
+    "eslint-plugin-react-hooks": "^2.0.1",
+    "husky": "^4.2.3",
+    "semantic-release": "^19.0.3"
+  },
+  "scripts": {
+    "lint": "npm run lint:eslint",
+    "lint:eslint": "eslint .",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:file": "jest --no-cache --watch --coverage=false"
+  },
+  "commitlint": {
+    "extends": [
+      "@commitlint/config-conventional"
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+    }
+  },
+  "prettier": {
+    "arrowParens": "always"
+  },
+  "release": {
+    "branches": [
+      "trunk"
+    ]
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
