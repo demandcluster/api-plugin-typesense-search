@@ -1,18 +1,18 @@
 {
-  "name": "@demandcluster/api-plugin-typesense-search",
+  "name": "@itleadopencommerce/api-plugin-typesense-search",
   "description": "Typesense search",
-  "version": "0.0.0-development",
+  "version": "0.1.0",
   "main": "index.js",
   "type": "module",
   "engines": {
     "node": ">=12.14.1"
   },
-  "homepage": "https://github.com/demandcluster/api-plugin-typesense-search",
-  "url": "https://github.com/demandcluster/api-plugin-typesense-search",
-  "email": "engineering@demandcluster.com",
+  "homepage": "https://github.com/it-lead-team/api-plugin-typesense-search",
+  "url": "https://github.com/it-lead-team/api-plugin-typesense-search",
+  "email": "dev@it-lead.eu",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/demandcluster/api-plugin-typesense-search.git"
+    "url": "git+https://github.com/it-lead-team/api-plugin-typesense-search.git"
   },
   "author": {
     "name": "Demandcluster",
@@ -26,6 +26,7 @@
   "sideEffects": false,
   "dependencies": {
     "@reactioncommerce/api-utils": "^1.16.9",
+    "flat": "^5.0.2",
     "object-hash": "^3.0.0",
     "typesense": "^1.2.2"
   },
