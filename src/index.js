@@ -3,6 +3,7 @@ import queries from "./queries/index.js";
 import resolvers from "./resolvers/index.js";
 import schemas from "./schemas/index.js";
 import pkg from "../package.json";
+import addToTypesenseCollection from "./utils/addToTypesenseCollection.js";
 
 
 
@@ -24,6 +25,9 @@ export default async function register(app) {
       resolvers,
       schemas
     },
-    queries
+    queries,
+    functionsByType: {
+      startup: [addToTypesenseCollection],
+    }
   });
 }
