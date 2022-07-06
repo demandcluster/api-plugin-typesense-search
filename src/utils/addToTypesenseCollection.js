@@ -22,9 +22,6 @@ export default async function addToTypesenseCollection(context) {
     "afterPublishProductToCatalog",
     async ({ catalogProduct }) => {
       const filters = {};
-      const updateSchema = {fields:[
-        {'name': 'updatedAt', 'type': 'string'},
-      ]};
 
       function collectOptions(options) {
         if (options) {
@@ -52,10 +49,6 @@ export default async function addToTypesenseCollection(context) {
         }
       }
 
-      for (const key in filters) {
-        filters[`${key}`] = Array.from(filters[key]);
-        updateSchema.fields.push({ name: `${key}`, type: "auto", facet: true });
-      }
  
       const searchCatalogProduct = {
         id: catalogProduct._id,
