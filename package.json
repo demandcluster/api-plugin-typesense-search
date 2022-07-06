@@ -1,7 +1,7 @@
 {
   "name": "@itleadopencommerce/api-plugin-typesense-search",
   "description": "Typesense search",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "main": "index.js",
   "type": "module",
   "engines": {
