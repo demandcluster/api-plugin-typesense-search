@@ -1,26 +1,11 @@
-import typesense from "typesense";
 import xformArrayToConnection from "@reactioncommerce/api-utils/graphql/xformArrayToConnection.js";
 import getPaginatedResponseFromAggregate from "@reactioncommerce/api-utils/graphql/getPaginatedResponseFromAggregate.js";
 import config from "../config.js";
 
-import hash from "object-hash";
 
-const {TYPESENSE_HOST,TYPESENSE_COLLECTION,TYPESENSE_TIMEOUT,TYPESENSE_SEARCH_KEY,TYPESENSE_RETRIES,TYPESENSE_RETRY_DELAY,ROOT_URL} = config;  
+import {typesenseclient} from "../utils/getTypeSenceClient.js";
+const { TYPESENSE_COLLECTION, ROOT_URL } = config;
 
-const typesenseclient = new typesense.Client({
-  nodes: [
-    {
-      host: TYPESENSE_HOST,
-      port: '443',
-      protocol: 'https',
-    },
-  ],
-  typesenseCollectionName: TYPESENSE_COLLECTION,
-  apiKey: TYPESENSE_SEARCH_KEY,
-  connectionTimeoutSeconds: TYPESENSE_TIMEOUT,
-  numRetries: TYPESENSE_RETRIES,
-  retryIntervalSeconds: TYPESENSE_RETRY_DELAY
-});
 
 const decodeOpaqueId = (opaqueId) => {
   if (opaqueId && opaqueId.length < 2 ) return opaqueId.join(':');
@@ -33,14 +18,14 @@ const decodeOpaqueId = (opaqueId) => {
   return opaqueId.join(':');
 };
 
-const fixComparePrice = (compEUR) => {
-  if(!compEUR.compareAtPrice){
+const fixComparePrice = (compPLN) => {
+  if(!compPLN.compareAtPrice){
     return null;
   }
   return {
-      amount:compEUR.compareAtPrice,
-      currency:{code: "EUR"},
-      displayAmount:compEUR.compareAtPrice,
+      amount:compPLN.compareAtPrice,
+      currency:{code: "PLN"},
+      displayAmount:compPLN.compareAtPrice,
   };
 };
 
@@ -48,9 +33,9 @@ const searchtypeSense = async (params) => {
   return typesenseclient.collections(TYPESENSE_COLLECTION).documents().search(params);
 };
 export default async function typesenseSearch(context, connectionArgs, currentApiAccess) {
-  
+
   let startTime = process.hrtime();
- 
+
     connectionArgs.typesenseSearchParameters.q = connectionArgs.typesenseSearchParameters.q.join(',');
     connectionArgs.typesenseSearchParameters.query_by = connectionArgs.typesenseSearchParameters.query_by.join(',');
     try {
@@ -69,24 +54,28 @@ export default async function typesenseSearch(context, connectionArgs, currentAp
         }
       }
     } catch (error) {
-      
+
     }
     const offset=connectionArgs.typesenseSearchParameters?.offset||0;
   // if none 10, max 100 results
-  
+
   //  facet_by: "tags,brand,color,size,price"
   const perPage=Math.min(connectionArgs?.typesenseSearchParameters?.first||20, 100);
   const currentPage=Math.max(Math.floor(offset/perPage)+1,1);
-  
+
     connectionArgs.typesenseSearchParameters.per_page=perPage;
     connectionArgs.typesenseSearchParameters.page=currentPage;
 
+
     const searchData = await searchtypeSense(connectionArgs.typesenseSearchParameters);
-   
-    
+
     const searchDataWithCatalogProducts = searchData.hits.map(hit => {
-    
-      const catalogProduct = JSON.parse(hit.document.fullDocument);;
+      
+      const catalogProduct = JSON.parse(hit.document.fullDocument);
+      if (!catalogProduct.product) {
+        catalogProduct.product = {...catalogProduct};
+      }
+
       catalogProduct.product.pricing.EUR.compareAtPrice = fixComparePrice(catalogProduct.product.pricing.EUR);
       
       catalogProduct.product.pricing =  [{code: "EUR", currency:{code: "EUR"}, ...catalogProduct.product.pricing.EUR}];
@@ -108,13 +97,13 @@ export default async function typesenseSearch(context, connectionArgs, currentAp
       return {highlights: {...hit.highlights}, ...catalogProduct};
     });
 
-   
-  
+
+
     const searchResponse = await xformArrayToConnection({}, searchDataWithCatalogProducts);
-   
+
     const hasPreviousPage=searchData.page > 1;
     const hasNextPage=searchData.page < searchData.found/perPage;
-  
+
     // overwrite the pagination info with typesense pagination
     searchResponse.pageInfo.hasPreviousPage=hasPreviousPage;
     searchResponse.pageInfo.hasNextPage=hasNextPage;
@@ -123,8 +112,6 @@ export default async function typesenseSearch(context, connectionArgs, currentAp
     searchResponse.page=searchData.page;
     searchResponse.facet_counts=searchData?.facet_counts||[];
 
-    
+
     return searchResponse;
-  
-  
 }

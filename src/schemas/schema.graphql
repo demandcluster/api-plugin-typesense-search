@@ -479,6 +479,8 @@ type typesenseItem {
 }
 
 
+
+
 extend type Query {
   """
   Search the typesense database check for full options
@@ -488,4 +490,9 @@ extend type Query {
     """The product configuration for which you want inventory info"""
     typesenseSearchParameters: typesenseSearchParameters!
   ): typesenseSearchConnection
+
+   """Get the string of facet values for facet_by search param"""
+  getTypesenseFacets(
+    any: String
+  ): String
 }
