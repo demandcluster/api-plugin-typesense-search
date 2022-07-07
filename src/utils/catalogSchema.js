@@ -13,5 +13,4 @@ export const catalogSchema = {
       {"name": ".*_facet", "type": "auto", "facet": true },
   
     ],
-    'default_sorting_field': 'pricing.PLN.minPrice',
   }
