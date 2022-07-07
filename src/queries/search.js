@@ -66,43 +66,34 @@ export default async function typesenseSearch(context, connectionArgs, currentAp
     connectionArgs.typesenseSearchParameters.per_page=perPage;
     connectionArgs.typesenseSearchParameters.page=currentPage;
 
-    console.log(connectionArgs.typesenseSearchParameters);
 
     const searchData = await searchtypeSense(connectionArgs.typesenseSearchParameters);
 
-    console.log(searchData);
     const searchDataWithCatalogProducts = searchData.hits.map(hit => {
       
       const catalogProduct = JSON.parse(hit.document.fullDocument);
+      if (!catalogProduct.product) {
+        catalogProduct.product = {...catalogProduct};
+      }
 
-
-
-
-      "SOME HARD CODED FOR PLN CURRENCY STUFF"
-
-      catalogProduct.pricing.PLN.compareAtPrice = fixComparePrice(catalogProduct.pricing.PLN);
-
-      // console.log(catalogProduct.product.variants, 'VARIANTS')
-
-      // Not sure but shuold be rewriteed
-      catalogProduct.pricing =  [{code: "PLN", currency:{code: "PLN"}, ...catalogProduct.pricing.PLN}];
-      catalogProduct.variants = catalogProduct.variants.map(va => {
-        va.pricing.PLN.compareAtPrice = fixComparePrice(va.pricing.PLN);
-        va.pricing =  [{code: "PLN",currency:{code: "PLN"}, ...va.pricing.PLN}];
-        // va.options = va.options.map(op => {
-        //   op.pricing.PLN.compareAtPrice = fixComparePrice(op.pricing.PLN);
-        //   op.pricing =  [{code: "PLN",currency:{code: "PLN"}, ...op.pricing.PLN}];
-        //   return op;
-        // });
+      catalogProduct.product.pricing.EUR.compareAtPrice = fixComparePrice(catalogProduct.product.pricing.EUR);
+      
+      catalogProduct.product.pricing =  [{code: "EUR", currency:{code: "EUR"}, ...catalogProduct.product.pricing.EUR}];
+      catalogProduct.product.variants = catalogProduct.product.variants.map(va => {
+        va.pricing.EUR.compareAtPrice = fixComparePrice(va.pricing.EUR);
+        va.pricing =  [{code: "EUR",currency:{code: "EUR"}, ...va.pricing.EUR}];
+        va.options = va.options.map(op => {
+          op.pricing.EUR.compareAtPrice = fixComparePrice(op.pricing.EUR);
+          op.pricing =  [{code: "EUR",currency:{code: "EUR"}, ...op.pricing.EUR}];
+          return op;
+        });
         return va;
       });
-
-      "END COMPARE"
-      catalogProduct.product = {...catalogProduct};
-      catalogProduct.primaryImage.URLs.large = `${ROOT_URL}${catalogProduct.primaryImage.URLs.large}`;
-      catalogProduct.primaryImage.URLs.medium = `${ROOT_URL}${catalogProduct.primaryImage.URLs.medium}`;
-      catalogProduct.primaryImage.URLs.small = `${ROOT_URL}${catalogProduct.primaryImage.URLs.small}`;
-      catalogProduct.primaryImage.URLs.thumbnail = `${ROOT_URL}${catalogProduct.primaryImage.URLs.thumbnail}`;
+      catalogProduct.product.primaryImage.URLs.large = `${ROOT_URL}${catalogProduct.product.primaryImage.URLs.large}`;
+      catalogProduct.product.primaryImage.URLs.medium = `${ROOT_URL}${catalogProduct.product.primaryImage.URLs.medium}`;
+      catalogProduct.product.primaryImage.URLs.small = `${ROOT_URL}${catalogProduct.product.primaryImage.URLs.small}`;
+      catalogProduct.product.primaryImage.URLs.thumbnail = `${ROOT_URL}${catalogProduct.product.primaryImage.URLs.thumbnail}`;
+    
       return {highlights: {...hit.highlights}, ...catalogProduct};
     });
 
