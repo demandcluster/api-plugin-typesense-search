@@ -1,6 +1,5 @@
 import { typesenseclient } from "./getTypeSenceClient.js";
 import config from "../config.js";
-import flatten from "flat";
 import { catalogSchema } from "./catalogSchema.js";
 import Logger from "@reactioncommerce/logger";
 
@@ -53,7 +52,6 @@ export default async function addToTypesenseCollection(context) {
       const searchCatalogProduct = {
         id: catalogProduct._id,
         fullDocument: JSON.stringify(catalogProduct),
-        ...flatten(catalogProduct),
         tagIds: catalogProduct["tagIds"],
         ...filters,
       };
